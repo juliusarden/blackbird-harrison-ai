@@ -8,3 +8,9 @@ test('renders sign in page', () => {
 });
 
 // Add more unit test here
+describe("validate", () => {
+  it("should return false if email is invalid", () => {
+    expect(validate("invalid_email", "Password1!")).toBe(false);
+  });
+
+  it("should return false if password is less than 8 characters long",)})
