@@ -8,6 +8,8 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
+import EmailValidator from 'email-validator';
+import { TextField } from '@material-ui/core';
 
 
 export default function LoginForm() {
@@ -15,10 +17,43 @@ export default function LoginForm() {
   const validateForm = (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
+    const Email = data.get('email');
+    const Password = data.get('password');
 
     // Add validation code here
+    const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    // validation function
+    const validate = () => {
+      let emailError = "";
+      let passwordError = "";
+      
+      if (!EmailValidator.validate(email)) {
+        emailError = "Invalid email address";
+      }
+    
+      if (password.length < 8) {
+        passwordError = "Password must be at least 8 characters long";
+      } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+        passwordError = "Password must contain both uppercase and lowercase letters";
+      } else if (!/\d/.test(password)) {
+        passwordError = "Password must contain at least one numerical digit (0-9)";
+      } else if (!/[!@#$%^&*]/.test(password)) {
+        passwordError = "Password must contain at least one special character (!@#$%^&*)";
+      }
+    
+      if (emailError || passwordError) {
+        setEmailError(emailError);
+        setPasswordError(passwordError);
+        return false;
+      }
+    
+      return true;
+    };
+    
+
 
   }
 
@@ -32,6 +67,14 @@ export default function LoginForm() {
     validateForm(event);
     setShowAlert("Login Successful");
   };
+  const HandleSubmit = () => {
+    if (validate()) {
+      // Show success snackbar
+    }
+  };
+  
+  <Button onClick={handleSubmit}>Submit</Button>
+  
 
   return (
     <>
@@ -109,6 +152,27 @@ export default function LoginForm() {
           </Box>
         </Box>
       </Grid>
+      <TextField
+  id="email"
+  label="Email"
+  value={email}
+  onChange={e => setEmail(e.target.value)}
+  helperText={emailError}
+  error={Boolean(emailError)}
+  fullWidth
+/>
+
+<TextField
+  id="password"
+  label="Password"
+  type="password"
+  value={password}
+  onChange={e => setPassword(e.target.value)}
+  helperText={passwordError}
+  error={Boolean(passwordError)}
+  fullWidth
+/>
+
     </>
   );
 }
