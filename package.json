@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
+    "email-validator": "^2.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
@@ -37,5 +38,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "Runs the app in the development mode.\\ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.",
+  "main": "index.js",
+  "author": "Sourabh",
+  "license": "ISC"
 }
