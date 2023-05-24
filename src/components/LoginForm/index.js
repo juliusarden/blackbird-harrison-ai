@@ -8,18 +8,36 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
-
+import emailvalidator from "email-validator" 
+import { validatePassword } from './validate';
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
+  const [showErrorEmail, setShowErrorEmail]= useState(false);
+  const [showErrorpwd, setShowErrorpwd]= useState(false);
   const validateForm = (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
-
-    // Add validation code here
-
+    
+     // Add validation code here
+    let eValidate = emailvalidator.validate(email);
+      if (eValidate == true){
+        setShowErrorEmail(false);
+      }
+      else{
+        setShowErrorEmail("Email is incorrect!")
+      } 
+  
+     const pwdValidateError = validatePassword(password);
+     if (pwdValidateError){
+      setShowErrorpwd(pwdValidateError);
+     }
+     else{
+      setShowErrorpwd(false);
+     }
+     return !pwdValidateError && eValidate;
   }
 
   const handleSubmit = (event) => {
@@ -29,8 +47,9 @@ export default function LoginForm() {
       email: data.get('email'),
       password: data.get('password'),
     });
-    validateForm(event);
+    if (validateForm(event)){
     setShowAlert("Login Successful");
+    }
   };
 
   return (
@@ -77,8 +96,10 @@ export default function LoginForm() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box component="form" Validate onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
+              error={showErrorEmail}
+              helperText={showErrorEmail}
               margin="normal"
               required
               fullWidth
@@ -86,9 +107,11 @@ export default function LoginForm() {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
+              autoFocus 
             />
             <TextField
+              error={showErrorpwd}
+              helperText={showErrorpwd}
               margin="normal"
               required
               fullWidth
