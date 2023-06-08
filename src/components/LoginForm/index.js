@@ -8,43 +8,56 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
-
+import emailValidator from 'email-validator';
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
   const validateForm = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
 
-    // Add validation code here
+    setEmailError(!emailValidator.validate(email));
+    setPasswordError(!validatePassword(password));
+  };
 
-  }
+  const validatePassword = (password) => {
+    return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/.test(password);
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email');
+    const password = data.get('password');
+
     validateForm(event);
-    setShowAlert("Login Successful");
+
+    if (emailValidator.validate(email) && validatePassword(password)) {
+      setShowAlert('Login Successful');
+    } else {
+      setShowAlert('Invalid email or password');
+    }
   };
 
   return (
     <>
-      {showAlert &&
+      {showAlert && (
         <Snackbar
           open={showAlert}
           autoHideDuration={6000}
           onClose={() => setShowAlert(false)}
           message={showAlert}
         >
-          <Alert>{showAlert}</Alert>
+          <Alert severity={showAlert === 'Login Successful' ? 'success' : 'error'}>
+            {showAlert}
+          </Alert>
         </Snackbar>
-      }
+      )}
       <Grid
         item
         xs={false}
@@ -69,9 +82,7 @@ export default function LoginForm() {
             alignItems: 'center',
           }}
         >
-          <Box sx={{
-            my: 2
-          }}>
+          <Box sx={{ my: 2 }}>
             <img src={logo} width="147" alt="harrison.ai" />
           </Box>
           <Typography component="h1" variant="h5">
@@ -87,6 +98,8 @@ export default function LoginForm() {
               name="email"
               autoComplete="email"
               autoFocus
+              error={emailError}
+              helperText={emailError && 'Invalid email address'}
             />
             <TextField
               margin="normal"
@@ -97,13 +110,13 @@ export default function LoginForm() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={passwordError}
+              helperText={
+                passwordError &&
+                'Password should be at least 8 characters, containing uppercase, lowercase, a number, and a special character'
+              }
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
           </Box>
