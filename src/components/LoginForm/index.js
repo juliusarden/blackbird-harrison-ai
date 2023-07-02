@@ -8,6 +8,7 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
+import validator from 'email-validator';
 
 
 export default function LoginForm() {
@@ -19,7 +20,28 @@ export default function LoginForm() {
     const password = data.get('password');
 
     // Add validation code here
+    if (validator.validate(email)) {
+      // Email is valid
+      function validatePassword(password) {
+        const hasMinimumLength = password.length >= 8;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasDigit = /\d/.test(password);
+        const hasSpecialCharacter = /[!@#$%^&*]/.test(password);
 
+        return (
+          hasMinimumLength &&
+          hasUppercase &&
+          hasLowercase &&
+          hasDigit &&
+          hasSpecialCharacter
+        );
+      }
+      return validatePassword(password);
+    } else {
+      // Email is not valid
+      return false;
+    }
   }
 
   const handleSubmit = (event) => {
@@ -29,34 +51,39 @@ export default function LoginForm() {
       email: data.get('email'),
       password: data.get('password'),
     });
-    validateForm(event);
-    setShowAlert("Login Successful");
+    if (validateForm(event)) {
+      setShowAlert({ message: "Login successful", severity: "success" });
+    } else {
+      setShowAlert({ message: "Invalid email or password", severity: "error" });
+    }
   };
 
   return (
     <>
-      {showAlert &&
+      {showAlert && (
         <Snackbar
           open={showAlert}
           autoHideDuration={6000}
           onClose={() => setShowAlert(false)}
-          message={showAlert}
+          message={showAlert.message}
         >
-          <Alert>{showAlert}</Alert>
+          <Alert severity={showAlert.severity}>{showAlert.message}</Alert>
         </Snackbar>
-      }
+      )}
       <Grid
         item
         xs={false}
         sm={4}
         md={7}
         sx={{
-          backgroundImage: 'url(https://source.unsplash.com/random)',
-          backgroundRepeat: 'no-repeat',
+          backgroundImage: "url(https://source.unsplash.com/random)",
+          backgroundRepeat: "no-repeat",
           backgroundColor: (t) =>
-            t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+            t.palette.mode === "light"
+              ? t.palette.grey[50]
+              : t.palette.grey[900],
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       />
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
@@ -64,20 +91,27 @@ export default function LoginForm() {
           sx={{
             my: 8,
             mx: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Box sx={{
-            my: 2
-          }}>
+          <Box
+            sx={{
+              my: 2,
+            }}
+          >
             <img src={logo} width="147" alt="harrison.ai" />
           </Box>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{ mt: 1 }}
+          >
             <TextField
               margin="normal"
               required
