@@ -12,3 +12,15 @@ You may also see any lint errors in the console.
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+
+## Changes Made
+
+- Added validation for email and password fields
+- Implemented error handling for form submission
+- Added success message display
+- Updated styling and layout
+
+## Contributor
+
+- [Atul Sahani](https://github.com/atulsahani8)
