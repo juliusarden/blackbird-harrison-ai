@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
@@ -9,42 +8,99 @@ import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
 
-
 export default function LoginForm() {
-  const [showAlert, setShowAlert] = useState(false);
-  const validateForm = (event) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
+  const [showSuccessSnackbar, setShowSuccessSnackbar] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-    // Add validation code here
+  const validateForm = () => {
+    let isValid = true;
 
-  }
+    // Perform basic form validation
+    if (email === '') {
+      setEmailError(true);
+      isValid = false;
+    } else {
+      setEmailError(false);
+    }
+
+    if (password === '') {
+      setPasswordError(true);
+      isValid = false;
+    } else {
+      setPasswordError(false);
+    }
+
+
+
+    // Perform password validation
+    if (isValid) {
+      // Check password length
+      if (password.length < 8) {
+        setErrorMessage('Password must be a minimum of 8 characters.');
+        setPasswordError(true);
+        isValid = false;
+      }
+      // Check if password contains both uppercase and lowercase letters
+      else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+        setErrorMessage('Password must contain both uppercase and lowercase letters.');
+        setPasswordError(true);
+        isValid = false;
+      }
+      // Check if password contains at least one numerical digit
+      else if (!/\d/.test(password)) {
+        setErrorMessage('Password must contain at least one numerical digit.');
+        setPasswordError(true);
+        isValid = false;
+      }
+      // Check if password contains at least one special character
+      else if (!/[!@#$%^&*()\-_=+[\]{};:'"\\|,.<>/?]/.test(password)) {
+        setErrorMessage('Password must contain at least one special character.');
+        setPasswordError(true);
+        isValid = false;
+      } else {
+        setErrorMessage('');
+        setPasswordError(false);
+      }
+    }
+
+    return isValid;
+  };
+
+
+  
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    validateForm(event);
-    setShowAlert("Login Successful");
+
+    const isValid = validateForm();
+
+    if (isValid) {
+      console.log({
+        email,
+        password,
+      });
+
+      setShowSuccessSnackbar(true);
+    }
+  };
+
+  const handleSuccessSnackbarClose = () => {
+    setShowSuccessSnackbar(false);
   };
 
   return (
     <>
-      {showAlert &&
-        <Snackbar
-          open={showAlert}
-          autoHideDuration={6000}
-          onClose={() => setShowAlert(false)}
-          message={showAlert}
-        >
-          <Alert>{showAlert}</Alert>
-        </Snackbar>
-      }
+      <Snackbar
+        open={showSuccessSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSuccessSnackbarClose}
+        message="Login Successful"
+      />
+
       <Grid
         item
         xs={false}
@@ -69,9 +125,7 @@ export default function LoginForm() {
             alignItems: 'center',
           }}
         >
-          <Box sx={{
-            my: 2
-          }}>
+          <Box sx={{ my: 2 }}>
             <img src={logo} width="147" alt="harrison.ai" />
           </Box>
           <Typography component="h1" variant="h5">
@@ -87,6 +141,9 @@ export default function LoginForm() {
               name="email"
               autoComplete="email"
               autoFocus
+              value={email}
+              error={emailError}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -97,13 +154,12 @@ export default function LoginForm() {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              error={passwordError}
+              helperText={passwordError && errorMessage}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
               Sign In
             </Button>
           </Box>
