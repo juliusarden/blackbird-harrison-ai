@@ -8,33 +8,95 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
+import { validate } from 'email-validator';
+
 
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const validateForm = (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const password = data.get('password');
 
-    // Add validation code here
+    const isValidEmail = (email) => {
+      return validate(email);
+    }
 
+    if (!isValidEmail(email)) {
+      console.log("sai email")
+      setEmailError("Invalid email");
+      return;
+    }
+
+    const isValidPassword = (password) => {
+
+      if (password.length < 8) {
+        return false;
+      }
+
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumeric = /\d/.test(password);
+      const hasSpecial = /[!@#$%^&*]/.test(password);
+
+      if (!hasUpperCase || !hasLowerCase || !hasNumeric || !hasSpecial) {
+        return false;
+      }
+
+      return true;
+
+    }
+
+    if (!isValidPassword(password)) {
+      console.log('sai mk')
+      setPasswordError("Invalid password");
+      return;
+    }
+
+    return true
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    validateForm(event);
+    // console.log({
+    //   email: data.get('email'),
+    //   password: data.get('password'),
+    // });
+    const isValid = validateForm(event);
+    if (!isValid) {
+      return;
+    }
+
     setShowAlert("Login Successful");
   };
 
   return (
     <>
+      {emailError &&
+        <Snackbar
+          open={emailError}
+          autoHideDuration={6000}
+          onClose={() => setEmailError(false)}
+          message={emailError}
+        >
+          <Alert severity="error">{emailError}</Alert>
+        </Snackbar>
+      }
+      {passwordError &&
+        <Snackbar
+          open={passwordError}
+          autoHideDuration={6000}
+          onClose={() => setPasswordError(false)}
+          message={passwordError}
+        >
+          <Alert severity="error">{passwordError}</Alert>
+        </Snackbar>
+      }
       {showAlert &&
         <Snackbar
           open={showAlert}
