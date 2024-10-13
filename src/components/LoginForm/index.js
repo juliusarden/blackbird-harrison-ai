@@ -8,43 +8,59 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
-
+import emailValidator from 'email-validator'; // Make sure to install this package if you haven't
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
-  const validateForm = (event) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
-
-    // Add validation code here
-
+  const [alertMessage, setAlertMessage] = useState('');
+  
+  const validateForm = (email, password) => {
+    if (!emailValidator.validate(email)) {
+      setAlertMessage("Please enter a valid email.");
+      return false;
+    }
+    if (password.length < 6) {
+      setAlertMessage("Password must be at least 6 characters long.");
+      return false;
+    }
+    return true;
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const email = data.get('email');
+    const password = data.get('password');
+
+    // Validate the form
+    if (!validateForm(email, password)) {
+      setShowAlert(true);
+      return; // Stop form submission if validation fails
+    }
+
+    // If validation passes, proceed with form submission
     console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+      email,
+      password,
     });
-    validateForm(event);
-    setShowAlert("Login Successful");
+    
+    setAlertMessage("Login Successful");
+    setShowAlert(true);
   };
 
   return (
     <>
-      {showAlert &&
+      {showAlert && (
         <Snackbar
           open={showAlert}
           autoHideDuration={6000}
           onClose={() => setShowAlert(false)}
-          message={showAlert}
         >
-          <Alert>{showAlert}</Alert>
+          <Alert onClose={() => setShowAlert(false)} severity={alertMessage.includes("Please") ? "error" : "success"}>
+            {alertMessage}
+          </Alert>
         </Snackbar>
-      }
+      )}
       <Grid
         item
         xs={false}
@@ -69,9 +85,7 @@ export default function LoginForm() {
             alignItems: 'center',
           }}
         >
-          <Box sx={{
-            my: 2
-          }}>
+          <Box sx={{ my: 2 }}>
             <img src={logo} width="147" alt="harrison.ai" />
           </Box>
           <Typography component="h1" variant="h5">
