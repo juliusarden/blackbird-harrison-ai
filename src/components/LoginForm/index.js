@@ -8,29 +8,69 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
-
+import validator from 'email-validator';
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
-  const validateForm = (event) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
 
-    // Add validation code here
+  // NEW: error states for email and password
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
+  const validateForm = (email, password) => {
+    let isValid = true;
+
+    // Validate Email
+    if (!validator.validate(email)) {
+      setEmailError('Please enter a valid email address.');
+      isValid = false;
+    } else {
+      setEmailError('');
+    }
+
+    // Validate Password - Rule 1: Minimum 8 characters
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.');
+      isValid = false;
+    }
+    // Validate Password - Rule 2: Must have uppercase
+    else if (!/[A-Z]/.test(password)) {
+      setPasswordError('Password must contain at least one uppercase letter.');
+      isValid = false;
+    }
+    // Validate Password - Rule 3: Must have lowercase
+    else if (!/[a-z]/.test(password)) {
+      setPasswordError('Password must contain at least one lowercase letter.');
+      isValid = false;
+    }
+    // Validate Password - Rule 4: Must have a number
+    else if (!/[0-9]/.test(password)) {
+      setPasswordError('Password must contain at least one number.');
+      isValid = false;
+    }
+    // Validate Password - Rule 5: Must have special character
+    else if (!/[!@#$%^&*]/.test(password)) {
+      setPasswordError('Password must contain at least one special character (!@#$%^&*).');
+      isValid = false;
+    }
+    else {
+      setPasswordError('');
+    }
+
+    return isValid;
   }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    validateForm(event);
-    setShowAlert("Login Successful");
+    const email = data.get('email');
+    const password = data.get('password');
+
+    // Only show success if validation passes
+    const isValid = validateForm(email, password);
+    if (isValid) {
+      setShowAlert("Login Successful");
+    }
   };
 
   return (
@@ -42,7 +82,7 @@ export default function LoginForm() {
           onClose={() => setShowAlert(false)}
           message={showAlert}
         >
-          <Alert>{showAlert}</Alert>
+          <Alert severity="success">{showAlert}</Alert>
         </Snackbar>
       }
       <Grid
@@ -69,15 +109,15 @@ export default function LoginForm() {
             alignItems: 'center',
           }}
         >
-          <Box sx={{
-            my: 2
-          }}>
+          <Box sx={{ my: 2 }}>
             <img src={logo} width="147" alt="harrison.ai" />
           </Box>
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+
+            {/* Email Field - now has error and helperText */}
             <TextField
               margin="normal"
               required
@@ -87,7 +127,11 @@ export default function LoginForm() {
               name="email"
               autoComplete="email"
               autoFocus
+              error={!!emailError}
+              helperText={emailError}
             />
+
+            {/* Password Field - now has error and helperText */}
             <TextField
               margin="normal"
               required
@@ -97,7 +141,10 @@ export default function LoginForm() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={!!passwordError}
+              helperText={passwordError}
             />
+
             <Button
               type="submit"
               fullWidth
