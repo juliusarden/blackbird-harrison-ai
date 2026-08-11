@@ -8,29 +8,31 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
+import validatePassword from '../../utils/validatePassword';
 
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
-  const validateForm = (event) => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
+  const [passwordError, setPasswordError] = useState('');
 
-    // Add validation code here
-
-  }
+  const validateForm = (password) => {
+    const { isValid, message } = validatePassword(password);
+    setPasswordError(message);
+    return isValid;
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    validateForm(event);
-    setShowAlert("Login Successful");
+    const password = data.get('password');
+
+    const isValid = validateForm(password);
+
+    if (isValid) {
+      setShowAlert("Login Successful");
+    } else {
+      setShowAlert(false);
+    }
   };
 
   return (
@@ -42,7 +44,7 @@ export default function LoginForm() {
           onClose={() => setShowAlert(false)}
           message={showAlert}
         >
-          <Alert>{showAlert}</Alert>
+          <Alert severity="success">{showAlert}</Alert>
         </Snackbar>
       }
       <Grid
@@ -97,6 +99,8 @@ export default function LoginForm() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={Boolean(passwordError)}
+              helperText={passwordError}
             />
             <Button
               type="submit"
