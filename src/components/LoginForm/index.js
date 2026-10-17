@@ -8,10 +8,12 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
-
+import { validateEmail, validatePassword } from './validateForm';
 
 export default function LoginForm() {
   const [showAlert, setShowAlert] = useState(false);
+  const [showErrorEmail, setShowErrorEmail] = useState(false);
+  const [showErrorPwd, setShowErrorPwd] = useState(false);
   const validateForm = (event) => {
     event.preventDefault()
     const data = new FormData(event.currentTarget);
@@ -19,7 +21,23 @@ export default function LoginForm() {
     const password = data.get('password');
 
     // Add validation code here
+    const emailValidateResult = validateEmail(email)
 
+    if (!emailValidateResult) {
+        setShowErrorEmail("Please enter valid email address");
+      } else {
+        setShowErrorEmail(false);
+      }
+
+      const pwdValidateError = validatePassword(password)
+
+      if (pwdValidateError) {
+        setShowErrorPwd(pwdValidateError);
+      } else {
+        setShowErrorPwd(false);
+      }
+
+      return (emailValidateResult && !pwdValidateError)
   }
 
   const handleSubmit = (event) => {
@@ -29,8 +47,9 @@ export default function LoginForm() {
       email: data.get('email'),
       password: data.get('password'),
     });
-    validateForm(event);
-    setShowAlert("Login Successful");
+      if(validateForm(event)){
+        setShowAlert("Login Successful");
+      }
   };
 
   return (
@@ -79,6 +98,8 @@ export default function LoginForm() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
+              error={Boolean(showErrorEmail)}
+              helperText={showErrorEmail}
               margin="normal"
               required
               fullWidth
@@ -89,6 +110,8 @@ export default function LoginForm() {
               autoFocus
             />
             <TextField
+              error={Boolean(showErrorPwd)}
+              helperText={showErrorPwd}
               margin="normal"
               required
               fullWidth
@@ -112,3 +135,4 @@ export default function LoginForm() {
     </>
   );
 }
+
